@@ -1,0 +1,32 @@
+aid: bitmex
+name: Bitmex
+description: "Real-Time Cryptocurrency derivatives trading platform based in Hong Kong"
+url: https://www.bitmex.com/app/apiOverview
+specificationVersion: '0.20'
+created: '2026-05-28'
+modified: '2026-05-28'
+x-source: public-apis/public-apis
+x-category: "Cryptocurrency"
+x-tier: 3
+x-tier-reason: bulk-registered-from-public-apis
+tags:
+  - Cryptocurrency
+  - Public APIs
+apis:
+  - name: Bitmex
+    description: "Real-Time Cryptocurrency derivatives trading platform based in Hong Kong"
+    humanURL: https://www.bitmex.com/app/apiOverview
+    baseURL: https://www.bitmex.com/app/apiOverview
+    tags:
+      - Cryptocurrency
+    properties:
+      - type: Documentation
+        url: https://www.bitmex.com/app/apiOverview
+common:
+  - type: Website
+    url: https://www.bitmex.com/app/apiOverview
+  - type: PublicAPIsListing
+    url: https://github.com/public-apis/public-apis
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com
