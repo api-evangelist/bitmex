@@ -4,7 +4,7 @@ description: "Real-Time Cryptocurrency derivatives trading platform based in Hon
 url: https://www.bitmex.com/app/apiOverview
 specificationVersion: '0.20'
 created: '2026-05-28'
-modified: '2026-05-28'
+modified: '2026-05-29'
 x-source: public-apis/public-apis
 x-category: "Cryptocurrency"
 x-tier: 3
@@ -22,6 +22,8 @@ apis:
     properties:
       - type: Documentation
         url: https://www.bitmex.com/app/apiOverview
+      - type: AsyncAPI
+        url: asyncapi/bitmex-asyncapi.yml
 common:
   - type: Website
     url: https://www.bitmex.com/app/apiOverview

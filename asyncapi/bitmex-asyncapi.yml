@@ -1,0 +1,1614 @@
+asyncapi: '2.6.0'
+info:
+  title: BitMEX Realtime WebSocket API
+  version: '1.0.0'
+  description: |
+    AsyncAPI 2.6 specification for the BitMEX public Realtime WebSocket API.
+
+    BitMEX exposes a single WebSocket endpoint at `wss://ws.bitmex.com/realtime`.
+    Clients subscribe to one or more topics ("tables") and receive a stream of
+    JSON messages. Each topic delivers messages with one of four `action` values:
+
+      * `partial` - the initial full snapshot of the table for this subscription
+                    along with the key fields used to identify rows on subsequent
+                    updates.
+      * `insert`  - new rows appended to the table.
+      * `update`  - partial updates to existing rows (matched by `keys`).
+      * `delete`  - rows removed from the table.
+
+    Most topics may be scoped to a specific symbol using `topic:symbol`
+    (for example `trade:XBTUSD`). A small set of topics never take a symbol
+    (see the `subscriptionSubjects` list returned by
+    `/api/v1/schema/websocketHelp`).
+
+    Authentication for the private topics uses two custom headers
+    (`api-expires` and `api-signature`) or the equivalent
+    `api-expires` / `api-signature` / `api-key` query string parameters.
+    The signature is `HMAC_SHA256(apiSecret, 'GET' + '/realtime' + apiExpires)`.
+
+    Source of truth for the topic list:
+    `https://www.bitmex.com/api/v1/schema/websocketHelp` and
+    `https://www.bitmex.com/app/wsAPI`.
+  contact:
+    name: BitMEX API
+    url: https://www.bitmex.com/app/wsAPI
+  license:
+    name: Proprietary
+    url: https://www.bitmex.com/app/terms
+  x-source: https://www.bitmex.com/api/v1/schema/websocketHelp
+
+defaultContentType: application/json
+
+servers:
+  production:
+    url: ws.bitmex.com/realtime
+    protocol: wss
+    description: |
+      BitMEX production Realtime WebSocket endpoint.
+      Full URL: `wss://ws.bitmex.com/realtime`.
+
+      Subscriptions may be requested either via the `subscribe`
+      query string parameter (comma-separated topic list) or via
+      subsequent `{"op":"subscribe","args":[...]}` messages after
+      the connection is established.
+    security:
+      - {}
+      - apiSignature: []
+
+channels:
+
+  # ============================================================
+  # Public topics
+  # ============================================================
+
+  announcement:
+    description: Site-wide notices from BitMEX. Public, no symbol scoping.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeAnnouncement
+      summary: Receive site-wide announcements.
+      message:
+        $ref: '#/components/messages/AnnouncementMessage'
+
+  chat:
+    description: BitMEX Trollbox chat messages. Public, no symbol scoping.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeChat
+      summary: Receive Trollbox chat messages.
+      message:
+        $ref: '#/components/messages/ChatMessage'
+
+  connected:
+    description: |
+      Statistics about currently connected users and bots.
+      Public, no symbol scoping.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeConnected
+      summary: Receive connected-users counts.
+      message:
+        $ref: '#/components/messages/ConnectedMessage'
+
+  funding:
+    description: |
+      Updates of funding rates for perpetual instruments.
+      Scoped by symbol (for example `funding:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeFunding
+      summary: Receive funding events.
+      message:
+        $ref: '#/components/messages/FundingMessage'
+
+  instrument:
+    description: |
+      Instrument updates including price, volume and statistics.
+      Scoped by symbol (for example `instrument:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeInstrument
+      summary: Receive instrument ticker updates.
+      message:
+        $ref: '#/components/messages/InstrumentMessage'
+
+  insurance:
+    description: |
+      Updates to the BitMEX insurance fund balance per currency.
+      Public, no symbol scoping.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeInsurance
+      summary: Receive insurance fund updates.
+      message:
+        $ref: '#/components/messages/InsuranceMessage'
+
+  liquidation:
+    description: |
+      Stream of liquidation orders. Scoped by symbol
+      (for example `liquidation:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeLiquidation
+      summary: Receive liquidation events.
+      message:
+        $ref: '#/components/messages/LiquidationMessage'
+
+  orderBookL2:
+    description: |
+      Full level-2 order book. Each row is identified by
+      `(symbol, id, side)`. Scoped by symbol
+      (for example `orderBookL2:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeOrderBookL2
+      summary: Receive full L2 order book updates.
+      message:
+        $ref: '#/components/messages/OrderBookL2Message'
+
+  orderBookL2_25:
+    description: |
+      Top 25 levels of the level-2 order book per side.
+      Scoped by symbol (for example `orderBookL2_25:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeOrderBookL2_25
+      summary: Receive top-25 L2 order book updates.
+      message:
+        $ref: '#/components/messages/OrderBookL2Message'
+
+  orderBook10:
+    description: |
+      Top 10 levels of the order book, delivered as a pulsed
+      full snapshot. Scoped by symbol (for example
+      `orderBook10:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeOrderBook10
+      summary: Receive top-10 order book snapshots.
+      message:
+        $ref: '#/components/messages/OrderBook10Message'
+
+  publicNotifications:
+    description: |
+      Site-wide public notifications. Public, no symbol scoping.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribePublicNotifications
+      summary: Receive public notifications.
+      message:
+        $ref: '#/components/messages/PublicNotificationMessage'
+
+  quote:
+    description: |
+      Top-of-book quote updates. Scoped by symbol
+      (for example `quote:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeQuote
+      summary: Receive top-of-book quote updates.
+      message:
+        $ref: '#/components/messages/QuoteMessage'
+
+  quoteBin1m:
+    description: |
+      1-minute binned quote OHLC-style snapshots.
+      Scoped by symbol (for example `quoteBin1m:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeQuoteBin1m
+      summary: Receive 1-minute binned quotes.
+      message:
+        $ref: '#/components/messages/QuoteMessage'
+
+  quoteBin5m:
+    description: |
+      5-minute binned quote snapshots.
+      Scoped by symbol (for example `quoteBin5m:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeQuoteBin5m
+      summary: Receive 5-minute binned quotes.
+      message:
+        $ref: '#/components/messages/QuoteMessage'
+
+  quoteBin1h:
+    description: |
+      1-hour binned quote snapshots.
+      Scoped by symbol (for example `quoteBin1h:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeQuoteBin1h
+      summary: Receive 1-hour binned quotes.
+      message:
+        $ref: '#/components/messages/QuoteMessage'
+
+  quoteBin1d:
+    description: |
+      1-day binned quote snapshots.
+      Scoped by symbol (for example `quoteBin1d:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeQuoteBin1d
+      summary: Receive 1-day binned quotes.
+      message:
+        $ref: '#/components/messages/QuoteMessage'
+
+  settlement:
+    description: |
+      Instrument settlement events.
+      Scoped by symbol (for example `settlement:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeSettlement
+      summary: Receive instrument settlement events.
+      message:
+        $ref: '#/components/messages/SettlementMessage'
+
+  trade:
+    description: |
+      Live trade ticks. Scoped by symbol
+      (for example `trade:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeTrade
+      summary: Receive trade ticks.
+      message:
+        $ref: '#/components/messages/TradeMessage'
+
+  tradeBin1m:
+    description: |
+      1-minute binned OHLCV trade snapshots.
+      Scoped by symbol (for example `tradeBin1m:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeTradeBin1m
+      summary: Receive 1-minute trade bins.
+      message:
+        $ref: '#/components/messages/TradeBinMessage'
+
+  tradeBin5m:
+    description: |
+      5-minute binned OHLCV trade snapshots.
+      Scoped by symbol (for example `tradeBin5m:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeTradeBin5m
+      summary: Receive 5-minute trade bins.
+      message:
+        $ref: '#/components/messages/TradeBinMessage'
+
+  tradeBin1h:
+    description: |
+      1-hour binned OHLCV trade snapshots.
+      Scoped by symbol (for example `tradeBin1h:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeTradeBin1h
+      summary: Receive 1-hour trade bins.
+      message:
+        $ref: '#/components/messages/TradeBinMessage'
+
+  tradeBin1d:
+    description: |
+      1-day binned OHLCV trade snapshots.
+      Scoped by symbol (for example `tradeBin1d:XBTUSD`).
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeTradeBin1d
+      summary: Receive 1-day trade bins.
+      message:
+        $ref: '#/components/messages/TradeBinMessage'
+
+  # ============================================================
+  # Authenticated topics
+  # ============================================================
+
+  affiliate:
+    description: |
+      Affiliate program metrics for the authenticated account.
+      Requires authentication. No symbol scoping.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeAffiliate
+      summary: Receive affiliate metrics (auth required).
+      message:
+        $ref: '#/components/messages/AffiliateMessage'
+
+  execution:
+    description: |
+      Order executions (fills) for the authenticated account.
+      Requires authentication. May be scoped by symbol.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeExecution
+      summary: Receive order executions (auth required).
+      message:
+        $ref: '#/components/messages/ExecutionMessage'
+
+  margin:
+    description: |
+      Margin balance updates for the authenticated account.
+      Requires authentication. No symbol scoping.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeMargin
+      summary: Receive margin updates (auth required).
+      message:
+        $ref: '#/components/messages/MarginMessage'
+
+  order:
+    description: |
+      Live order book updates for the authenticated account.
+      Requires authentication. May be scoped by symbol.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeOrder
+      summary: Receive order updates (auth required).
+      message:
+        $ref: '#/components/messages/OrderMessage'
+
+  position:
+    description: |
+      Position updates for the authenticated account.
+      Requires authentication. May be scoped by symbol.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribePosition
+      summary: Receive position updates (auth required).
+      message:
+        $ref: '#/components/messages/PositionMessage'
+
+  privateNotifications:
+    description: |
+      Private notifications targeted at the authenticated account.
+      Requires authentication. No symbol scoping.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribePrivateNotifications
+      summary: Receive private notifications (auth required).
+      message:
+        $ref: '#/components/messages/PrivateNotificationMessage'
+
+  transact:
+    description: |
+      Wallet transactions (deposits, withdrawals, fees, settlements)
+      for the authenticated account. Requires authentication.
+      No symbol scoping.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeTransact
+      summary: Receive wallet transactions (auth required).
+      message:
+        $ref: '#/components/messages/TransactMessage'
+
+  wallet:
+    description: |
+      Wallet balance updates for the authenticated account.
+      Requires authentication. No symbol scoping.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: subscribeWallet
+      summary: Receive wallet balance updates (auth required).
+      message:
+        $ref: '#/components/messages/WalletMessage'
+
+components:
+
+  securitySchemes:
+    apiSignature:
+      type: httpApiKey
+      in: query
+      name: api-signature
+      description: |
+        BitMEX request-signature authentication. Required for the
+        authenticated topics (affiliate, execution, margin, order,
+        position, privateNotifications, transact, wallet).
+
+        Supply three query parameters when establishing the WebSocket
+        connection, or the equivalent `api-key`, `api-expires` and
+        `api-signature` HTTP headers:
+
+          * `api-key` - your BitMEX API key id.
+          * `api-expires` - integer UNIX epoch (seconds) when the
+            signature expires. Recommended `now + 5`.
+          * `api-signature` - lowercase hex
+            `HMAC_SHA256(apiSecret, "GET" + "/realtime" + apiExpires)`.
+
+        Alternative in-band auth is supported via the message
+        `{"op":"authKeyExpires","args":[apiKey, apiExpires, signature]}`
+        sent after the WebSocket connection is established.
+
+  messages:
+
+    SubscribeRequest:
+      name: SubscribeRequest
+      title: Subscribe / Unsubscribe envelope
+      summary: |
+        Client-to-server control message used to subscribe to,
+        unsubscribe from, or authenticate against topics.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/SubscribeRequest'
+
+    WelcomeMessage:
+      name: WelcomeMessage
+      title: Server welcome message
+      summary: Sent by the server immediately after connection.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/Welcome'
+
+    SubscribeResponse:
+      name: SubscribeResponse
+      title: Subscribe acknowledgement
+      summary: Server acknowledgement of a successful subscribe / unsubscribe.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/SubscribeResponse'
+
+    ErrorMessage:
+      name: ErrorMessage
+      title: Server error
+      summary: Server-side error response.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ErrorResponse'
+
+    AnnouncementMessage:
+      name: AnnouncementMessage
+      title: announcement table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageAnnouncement'
+
+    ChatMessage:
+      name: ChatMessage
+      title: chat table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageChat'
+
+    ConnectedMessage:
+      name: ConnectedMessage
+      title: connected table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageConnected'
+
+    FundingMessage:
+      name: FundingMessage
+      title: funding table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageFunding'
+
+    InstrumentMessage:
+      name: InstrumentMessage
+      title: instrument table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageInstrument'
+
+    InsuranceMessage:
+      name: InsuranceMessage
+      title: insurance table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageInsurance'
+
+    LiquidationMessage:
+      name: LiquidationMessage
+      title: liquidation table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageLiquidation'
+
+    OrderBookL2Message:
+      name: OrderBookL2Message
+      title: orderBookL2 / orderBookL2_25 table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageOrderBookL2'
+
+    OrderBook10Message:
+      name: OrderBook10Message
+      title: orderBook10 pulsed snapshot
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageOrderBook10'
+
+    PublicNotificationMessage:
+      name: PublicNotificationMessage
+      title: publicNotifications table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageGlobalNotification'
+
+    QuoteMessage:
+      name: QuoteMessage
+      title: quote / quoteBin* table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageQuote'
+
+    SettlementMessage:
+      name: SettlementMessage
+      title: settlement table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageSettlement'
+
+    TradeMessage:
+      name: TradeMessage
+      title: trade table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageTrade'
+
+    TradeBinMessage:
+      name: TradeBinMessage
+      title: tradeBin1m / 5m / 1h / 1d table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageTradeBin'
+
+    AffiliateMessage:
+      name: AffiliateMessage
+      title: affiliate table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageAffiliate'
+
+    ExecutionMessage:
+      name: ExecutionMessage
+      title: execution table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageExecution'
+
+    MarginMessage:
+      name: MarginMessage
+      title: margin table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageMargin'
+
+    OrderMessage:
+      name: OrderMessage
+      title: order table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageOrder'
+
+    PositionMessage:
+      name: PositionMessage
+      title: position table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessagePosition'
+
+    PrivateNotificationMessage:
+      name: PrivateNotificationMessage
+      title: privateNotifications table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageGlobalNotification'
+
+    TransactMessage:
+      name: TransactMessage
+      title: transact table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageTransaction'
+
+    WalletMessage:
+      name: WalletMessage
+      title: wallet table message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TableMessageWallet'
+
+  schemas:
+
+    Action:
+      type: string
+      description: |
+        BitMEX table action. `partial` arrives once at the start of
+        a subscription with the full snapshot and `keys` array.
+        Subsequent messages are `insert`, `update` or `delete` keyed
+        by the fields in `keys`.
+      enum: [partial, insert, update, delete]
+
+    OperationName:
+      type: string
+      enum: [subscribe, unsubscribe, authKey, authKeyExpires, cancelAllAfter, ping]
+      description: |
+        Client operation names supported by the BitMEX WebSocket.
+        `subscribe` / `unsubscribe` manage topics; `authKeyExpires` /
+        `authKey` perform in-band authentication; `cancelAllAfter`
+        sets a dead-man timer; `ping` is a keepalive.
+
+    SubscribeRequest:
+      type: object
+      description: |
+        Client-to-server envelope. Examples:
+
+          * `{"op":"subscribe","args":["trade:XBTUSD","instrument:XBTUSD"]}`
+          * `{"op":"unsubscribe","args":["trade:XBTUSD"]}`
+          * `{"op":"authKeyExpires","args":["myKey",1518064238,"signature"]}`
+      required: [op]
+      properties:
+        op:
+          $ref: '#/components/schemas/OperationName'
+        args:
+          type: array
+          description: |
+            Operation arguments. For `subscribe` / `unsubscribe` this
+            is an array of topic strings such as `"trade:XBTUSD"` or
+            unscoped topic names such as `"announcement"`.
+          items: {}
+
+    Welcome:
+      type: object
+      description: |
+        Welcome message sent by the server immediately after
+        the WebSocket connection is established.
+      properties:
+        info:
+          type: string
+          description: Human-readable status string.
+        version:
+          type: string
+          description: BitMEX engine build hash.
+        timestamp:
+          type: string
+          format: date-time
+        docs:
+          type: string
+          format: uri
+        limit:
+          type: object
+          properties:
+            remaining:
+              type: integer
+
+    SubscribeResponse:
+      type: object
+      description: |
+        Acknowledgement returned when a subscribe / unsubscribe
+        succeeds.
+      properties:
+        success:
+          type: boolean
+        subscribe:
+          type: string
+          description: The topic that was subscribed to.
+        unsubscribe:
+          type: string
+          description: The topic that was unsubscribed from.
+        request:
+          $ref: '#/components/schemas/SubscribeRequest'
+
+    ErrorResponse:
+      type: object
+      description: |
+        Server error envelope. Returned for invalid messages
+        such as unknown topics, malformed JSON, or auth failures.
+      required: [status, error]
+      properties:
+        status:
+          type: integer
+          description: HTTP-style status code.
+        error:
+          type: string
+          description: Human-readable error message.
+        meta:
+          type: object
+        request:
+          $ref: '#/components/schemas/SubscribeRequest'
+
+    TableEnvelopeBase:
+      type: object
+      description: Common envelope for all table push messages.
+      required: [table, action, data]
+      properties:
+        table:
+          type: string
+          description: The topic / table name (e.g. `trade`, `quote`).
+        action:
+          $ref: '#/components/schemas/Action'
+        keys:
+          type: array
+          items:
+            type: string
+          description: |
+            Field names that uniquely identify a row within the
+            table. Present on `partial` snapshots.
+        types:
+          type: object
+          additionalProperties:
+            type: string
+          description: Server-side field type map for the table.
+        foreignKeys:
+          type: object
+          additionalProperties:
+            type: string
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+        filter:
+          type: object
+          description: Filter that scoped this subscription (e.g. `{"symbol":"XBTUSD"}`).
+
+    # ------------------------------------------------------------
+    # Row schemas (mirror BitMEX REST schemas)
+    # ------------------------------------------------------------
+
+    Announcement:
+      type: object
+      properties:
+        id: { type: integer, format: int32 }
+        link: { type: string }
+        title: { type: string }
+        content: { type: string }
+        date: { type: string, format: date-time }
+      required: [id]
+
+    Chat:
+      type: object
+      properties:
+        id: { type: integer, format: int32 }
+        date: { type: string, format: date-time }
+        user: { type: string }
+        userColor: { type: string }
+        message: { type: string }
+        html: { type: string }
+        channelID: { type: number, format: double }
+      required: [id]
+
+    ConnectedUsers:
+      type: object
+      properties:
+        users: { type: integer }
+        bots: { type: integer }
+
+    Funding:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        symbol: { type: string }
+        fundingInterval: { type: string, format: date-time }
+        fundingRate: { type: number, format: double }
+        fundingRateDaily: { type: number, format: double }
+      required: [timestamp, symbol]
+
+    Instrument:
+      type: object
+      properties:
+        symbol: { type: string }
+        rootSymbol: { type: string }
+        instrumentID: { type: integer, format: int32 }
+        state: { type: string }
+        typ: { type: string }
+        listing: { type: string, format: date-time }
+        front: { type: string, format: date-time }
+        expiry: { type: string, format: date-time }
+        settle: { type: string, format: date-time }
+        listedSettle: { type: string, format: date-time }
+        positionCurrency: { type: string }
+        underlying: { type: string }
+        quoteCurrency: { type: string }
+        underlyingSymbol: { type: string }
+        reference: { type: string }
+        referenceSymbol: { type: string }
+        calcInterval: { type: string, format: date-time }
+        publishInterval: { type: string, format: date-time }
+        publishTime: { type: string, format: date-time }
+        maxOrderQty: { type: integer, format: int64 }
+        minPrice: { type: number, format: double }
+        maxPrice: { type: number, format: double }
+        lotSize: { type: integer, format: int64 }
+        tickSize: { type: number, format: double }
+        multiplier: { type: integer, format: int64 }
+        settlCurrency: { type: string }
+        underlyingToPositionMultiplier: { type: integer, format: int64 }
+        underlyingToSettleMultiplier: { type: integer, format: int64 }
+        quoteToSettleMultiplier: { type: integer, format: int64 }
+        isQuanto: { type: boolean }
+        isInverse: { type: boolean }
+        initMargin: { type: number, format: double }
+        maintMargin: { type: number, format: double }
+        riskLimit: { type: integer, format: int64 }
+        riskStep: { type: integer, format: int64 }
+        limit: { type: number, format: double }
+        taxed: { type: boolean }
+        deleverage: { type: boolean }
+        makerFee: { type: number, format: double }
+        takerFee: { type: number, format: double }
+        settlementFee: { type: number, format: double }
+        fundingBaseSymbol: { type: string }
+        fundingQuoteSymbol: { type: string }
+        fundingPremiumSymbol: { type: string }
+        fundingTimestamp: { type: string, format: date-time }
+        fundingInterval: { type: string, format: date-time }
+        fundingRate: { type: number, format: double }
+        indicativeFundingRate: { type: number, format: double }
+        rebalanceTimestamp: { type: string, format: date-time }
+        rebalanceInterval: { type: string, format: date-time }
+        launchingTimestamp: { type: string, format: date-time }
+        prevClosePrice: { type: number, format: double }
+        limitDownPrice: { type: number, format: double }
+        limitUpPrice: { type: number, format: double }
+        totalVolume: { type: integer, format: int64 }
+        volume: { type: integer, format: int64 }
+        volume24h: { type: integer, format: int64 }
+        prevTotalTurnover: { type: integer, format: int64 }
+        totalTurnover: { type: integer, format: int64 }
+        turnover: { type: integer, format: int64 }
+        turnover24h: { type: integer, format: int64 }
+        homeNotional24h: { type: number, format: double }
+        foreignNotional24h: { type: number, format: double }
+        prevPrice24h: { type: number, format: double }
+        vwap: { type: number, format: double }
+        highPrice: { type: number, format: double }
+        lowPrice: { type: number, format: double }
+        lastPrice: { type: number, format: double }
+        lastPriceProtected: { type: number, format: double }
+        lastTickDirection: { type: string }
+        lastChangePcnt: { type: number, format: double }
+        bidPrice: { type: number, format: double }
+        midPrice: { type: number, format: double }
+        askPrice: { type: number, format: double }
+        impactBidPrice: { type: number, format: double }
+        impactMidPrice: { type: number, format: double }
+        impactAskPrice: { type: number, format: double }
+        hasLiquidity: { type: boolean }
+        openInterest: { type: integer, format: int64 }
+        openValue: { type: integer, format: int64 }
+        fairMethod: { type: string }
+        fairBasisRate: { type: number, format: double }
+        fairBasis: { type: number, format: double }
+        fairPrice: { type: number, format: double }
+        markMethod: { type: string }
+        markPrice: { type: number, format: double }
+        referencePrice: { type: number, format: double }
+        indicativeSettlePrice: { type: number, format: double }
+        settledPriceAdjustmentRate: { type: number, format: double }
+        settledPrice: { type: number, format: double }
+        instantPnl: { type: boolean }
+        minTick: { type: number, format: double }
+        fundingBaseRate: { type: number, format: double }
+        fundingQuoteRate: { type: number, format: double }
+        farLegSymbol: { type: string }
+        nearLegSymbol: { type: string }
+        tags: { type: string }
+        timestamp: { type: string, format: date-time }
+      required: [symbol]
+
+    Insurance:
+      type: object
+      properties:
+        currency: { type: string }
+        timestamp: { type: string, format: date-time }
+        walletBalance: { type: integer, format: int64 }
+      required: [currency, timestamp]
+
+    Liquidation:
+      type: object
+      properties:
+        orderID: { type: string, format: uuid }
+        symbol: { type: string }
+        side: { type: string }
+        price: { type: number, format: double }
+        leavesQty: { type: integer, format: int64 }
+      required: [orderID]
+
+    OrderBookL2:
+      type: object
+      properties:
+        symbol: { type: string }
+        id: { type: integer, format: int64 }
+        side: { type: string }
+        size: { type: integer, format: int64 }
+        price: { type: number, format: double }
+        pool: { type: string }
+        timestamp: { type: string, format: date-time }
+        transactTime: { type: string, format: date-time }
+      required: [symbol, id, side]
+
+    OrderBook10:
+      type: object
+      description: |
+        Top-10 pulsed order book snapshot. `bids` and `asks`
+        are arrays of `[price, size]` tuples sorted best-first.
+      properties:
+        symbol: { type: string }
+        bids:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+        asks:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+        timestamp: { type: string, format: date-time }
+      required: [symbol]
+
+    Quote:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        symbol: { type: string }
+        bidSize: { type: integer, format: int64 }
+        bidPrice: { type: number, format: double }
+        askPrice: { type: number, format: double }
+        askSize: { type: integer, format: int64 }
+        pool: { type: string }
+      required: [timestamp]
+
+    Settlement:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        symbol: { type: string }
+        settlementType: { type: string }
+        settledPrice: { type: number, format: double }
+        optionStrikePrice: { type: number, format: double }
+        optionUnderlyingPrice: { type: number, format: double }
+        bankrupt: { type: integer, format: int64 }
+        taxBase: { type: integer, format: int64 }
+        taxRate: { type: number, format: double }
+      required: [timestamp, symbol]
+
+    Trade:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        symbol: { type: string }
+        side: { type: string }
+        size: { type: integer, format: int64 }
+        price: { type: number, format: double }
+        tickDirection: { type: string }
+        trdMatchID: { type: string, format: uuid }
+        grossValue: { type: integer, format: int64 }
+        homeNotional: { type: number, format: double }
+        foreignNotional: { type: number, format: double }
+        trdType: { type: string }
+        pool: { type: string }
+      required: [timestamp, symbol, side, trdMatchID]
+
+    TradeBin:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        symbol: { type: string }
+        open: { type: number, format: double }
+        high: { type: number, format: double }
+        low: { type: number, format: double }
+        close: { type: number, format: double }
+        trades: { type: integer, format: int64 }
+        volume: { type: integer, format: int64 }
+        vwap: { type: number, format: double }
+        lastSize: { type: integer, format: int64 }
+        turnover: { type: integer, format: int64 }
+        homeNotional: { type: number, format: double }
+        foreignNotional: { type: number, format: double }
+        pool: { type: string }
+      required: [timestamp, symbol]
+
+    GlobalNotification:
+      type: object
+      properties:
+        id: { type: integer, format: int32 }
+        date: { type: string, format: date-time }
+        title: { type: string }
+        body: { type: string }
+        ttl: { type: integer }
+        type: { type: string }
+        closable: { type: boolean }
+        persist: { type: boolean }
+        waitForVisibility: { type: boolean }
+        sound: { type: string }
+      required: [id]
+
+    Affiliate:
+      type: object
+      properties:
+        account: { type: integer, format: int64 }
+        currency: { type: string }
+        prevPayout: { type: integer, format: int64 }
+        prevTurnover: { type: integer, format: int64 }
+        prevComm: { type: integer, format: int64 }
+        prevTimestamp: { type: string, format: date-time }
+        execTurnover: { type: integer, format: int64 }
+        execComm: { type: integer, format: int64 }
+        totalReferrals: { type: integer, format: int64 }
+        totalTurnover: { type: integer, format: int64 }
+        totalComm: { type: integer, format: int64 }
+        payoutPcnt: { type: number, format: double }
+        pendingPayout: { type: integer, format: int64 }
+        timestamp: { type: string, format: date-time }
+        referrerAccount: { type: number, format: double }
+        referralDiscount: { type: number, format: double }
+        affiliatePayout: { type: number, format: double }
+      required: [account, currency]
+
+    Execution:
+      type: object
+      properties:
+        execID: { type: string, format: uuid }
+        orderID: { type: string, format: uuid }
+        origClOrdID: { type: string }
+        clOrdID: { type: string }
+        clOrdLinkID: { type: string }
+        account: { type: integer, format: int64 }
+        symbol: { type: string }
+        strategy: { type: string }
+        side: { type: string }
+        lastQty: { type: integer, format: int64 }
+        lastPx: { type: number, format: double }
+        lastLiquidityInd: { type: string }
+        orderQty: { type: integer, format: int64 }
+        price: { type: number, format: double }
+        displayQty: { type: integer, format: int64 }
+        stopPx: { type: number, format: double }
+        pegOffsetValue: { type: number, format: double }
+        pegPriceType: { type: string }
+        currency: { type: string }
+        settlCurrency: { type: string }
+        execType: { type: string }
+        ordType: { type: string }
+        timeInForce: { type: string }
+        execInst: { type: string }
+        contingencyType: { type: string }
+        ordStatus: { type: string }
+        triggered: { type: string }
+        workingIndicator: { type: boolean }
+        ordRejReason: { type: string }
+        leavesQty: { type: integer, format: int64 }
+        cumQty: { type: integer, format: int64 }
+        avgPx: { type: number, format: double }
+        commission: { type: number, format: double }
+        brokerCommission: { type: number, format: double }
+        feeType: { type: string }
+        tradePublishIndicator: { type: string }
+        text: { type: string }
+        trdMatchID: { type: string, format: uuid }
+        execCost: { type: integer, format: int64 }
+        execComm: { type: integer, format: int64 }
+        execCommCcy: { type: string }
+        brokerExecComm: { type: integer, format: int64 }
+        homeNotional: { type: number, format: double }
+        foreignNotional: { type: number, format: double }
+        transactTime: { type: string, format: date-time }
+        timestamp: { type: string, format: date-time }
+        realisedPnl: { type: integer, format: int64 }
+        positionID: { type: string, format: uuid }
+        trdType: { type: string }
+        maxSlippagePct: { type: number, format: double }
+        pool: { type: string }
+        destination: { type: string }
+        algoOrderDetails: { type: object }
+        error: { type: string }
+        tradePool: { type: string }
+      required: [execID]
+
+    Margin:
+      type: object
+      properties:
+        account: { type: integer, format: int64 }
+        currency: { type: string }
+        riskLimit: { type: integer, format: int64 }
+        state: { type: string }
+        amount: { type: integer, format: int64 }
+        prevRealisedPnl: { type: integer, format: int64 }
+        grossComm: { type: integer, format: int64 }
+        grossOpenCost: { type: integer, format: int64 }
+        grossOpenPremium: { type: integer, format: int64 }
+        grossExecCost: { type: integer, format: int64 }
+        grossMarkValue: { type: integer, format: int64 }
+        riskValue: { type: integer, format: int64 }
+        initMargin: { type: integer, format: int64 }
+        maintMargin: { type: integer, format: int64 }
+        targetExcessMargin: { type: integer, format: int64 }
+        realisedPnl: { type: integer, format: int64 }
+        unrealisedPnl: { type: integer, format: int64 }
+        isolatedUnrealisedPnl: { type: integer, format: int64 }
+        walletBalance: { type: integer, format: int64 }
+        marginBalance: { type: integer, format: int64 }
+        marginLeverage: { type: number, format: double }
+        marginUsedPcnt: { type: number, format: double }
+        excessMargin: { type: integer, format: int64 }
+        availableMargin: { type: integer, format: int64 }
+        withdrawableMargin: { type: integer, format: int64 }
+        systemWithdrawableMargin: { type: integer, format: int64 }
+        makerFeeDiscount: { type: number, format: double }
+        takerFeeDiscount: { type: number, format: double }
+        timestamp: { type: string, format: date-time }
+        foreignMarginBalance: { type: integer, format: int64 }
+        foreignRequirement: { type: integer, format: int64 }
+      required: [account, currency]
+
+    Order:
+      type: object
+      properties:
+        orderID: { type: string, format: uuid }
+        clOrdID: { type: string }
+        clOrdLinkID: { type: string }
+        account: { type: integer, format: int64 }
+        symbol: { type: string }
+        strategy: { type: string }
+        side: { type: string }
+        orderQty: { type: integer, format: int64 }
+        price: { type: number, format: double }
+        displayQty: { type: integer, format: int64 }
+        stopPx: { type: number, format: double }
+        pegOffsetValue: { type: number, format: double }
+        pegPriceType: { type: string }
+        currency: { type: string }
+        settlCurrency: { type: string }
+        ordType: { type: string }
+        timeInForce: { type: string }
+        execInst: { type: string }
+        contingencyType: { type: string }
+        ordStatus: { type: string }
+        triggered: { type: string }
+        workingIndicator: { type: boolean }
+        ordRejReason: { type: string }
+        leavesQty: { type: integer, format: int64 }
+        cumQty: { type: integer, format: int64 }
+        avgPx: { type: number, format: double }
+        maxSlippagePct: { type: number, format: double }
+        text: { type: string }
+        transactTime: { type: string, format: date-time }
+        timestamp: { type: string, format: date-time }
+        destination: { type: string }
+        pool: { type: string }
+        algoOrderDetails: { type: object }
+        error: { type: string }
+      required: [orderID]
+
+    Position:
+      type: object
+      properties:
+        account: { type: integer, format: int64 }
+        symbol: { type: string }
+        strategy: { type: string }
+        currency: { type: string }
+        underlying: { type: string }
+        quoteCurrency: { type: string }
+        commission: { type: number, format: double }
+        initMarginReq: { type: number, format: double }
+        maintMarginReq: { type: number, format: double }
+        riskLimit: { type: integer, format: int64 }
+        leverage: { type: number, format: double }
+        crossMargin: { type: boolean }
+        deleveragePercentile: { type: number, format: double }
+        rebalancedPnl: { type: integer, format: int64 }
+        prevRealisedPnl: { type: integer, format: int64 }
+        prevUnrealisedPnl: { type: integer, format: int64 }
+        openingQty: { type: integer, format: int64 }
+        openOrderBuyQty: { type: integer, format: int64 }
+        openOrderBuyCost: { type: integer, format: int64 }
+        openOrderBuyPremium: { type: integer, format: int64 }
+        openOrderSellQty: { type: integer, format: int64 }
+        openOrderSellCost: { type: integer, format: int64 }
+        openOrderSellPremium: { type: integer, format: int64 }
+        currentQty: { type: integer, format: int64 }
+        currentCost: { type: integer, format: int64 }
+        currentComm: { type: integer, format: int64 }
+        realisedCost: { type: integer, format: int64 }
+        unrealisedCost: { type: integer, format: int64 }
+        grossOpenPremium: { type: integer, format: int64 }
+        isOpen: { type: boolean }
+        markPrice: { type: number, format: double }
+        markValue: { type: integer, format: int64 }
+        riskValue: { type: integer, format: int64 }
+        homeNotional: { type: number, format: double }
+        foreignNotional: { type: number, format: double }
+        posState: { type: string }
+        posCost: { type: integer, format: int64 }
+        posCross: { type: integer, format: int64 }
+        posComm: { type: integer, format: int64 }
+        posLoss: { type: integer, format: int64 }
+        posMargin: { type: integer, format: int64 }
+        posMaint: { type: integer, format: int64 }
+        initMargin: { type: integer, format: int64 }
+        maintMargin: { type: integer, format: int64 }
+        realisedPnl: { type: integer, format: int64 }
+        unrealisedPnl: { type: integer, format: int64 }
+        unrealisedPnlPcnt: { type: number, format: double }
+        unrealisedRoePcnt: { type: number, format: double }
+        avgCostPrice: { type: number, format: double }
+        avgEntryPrice: { type: number, format: double }
+        breakEvenPrice: { type: number, format: double }
+        marginCallPrice: { type: number, format: double }
+        liquidationPrice: { type: number, format: double }
+        bankruptPrice: { type: number, format: double }
+        timestamp: { type: string, format: date-time }
+      required: [account, symbol]
+
+    Transaction:
+      type: object
+      properties:
+        transactID: { type: string, format: uuid }
+        account: { type: integer, format: int64 }
+        currency: { type: string }
+        network: { type: string }
+        transactType: { type: string }
+        amount: { type: integer, format: int64 }
+        walletBalance: { type: integer, format: int64 }
+        fee: { type: integer, format: int64 }
+        transactStatus: { type: string }
+        address: { type: string }
+        tx: { type: string }
+        orderID: { type: string, format: uuid }
+        text: { type: string }
+        transactTime: { type: string, format: date-time }
+        timestamp: { type: string, format: date-time }
+        memo: { type: string }
+        subType: { type: string }
+      required: [transactID]
+
+    Wallet:
+      type: object
+      properties:
+        account: { type: integer, format: int64 }
+        currency: { type: string }
+        deposited: { type: integer, format: int64 }
+        withdrawn: { type: integer, format: int64 }
+        transferIn: { type: integer, format: int64 }
+        transferOut: { type: integer, format: int64 }
+        amount: { type: integer, format: int64 }
+        pendingCredit: { type: integer, format: int64 }
+        pendingDebit: { type: integer, format: int64 }
+        confirmedDebit: { type: integer, format: int64 }
+        timestamp: { type: string, format: date-time }
+      required: [account, currency]
+
+    # ------------------------------------------------------------
+    # Per-table envelope messages (envelope + typed data array)
+    # ------------------------------------------------------------
+
+    TableMessageAnnouncement:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [announcement]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Announcement'
+
+    TableMessageChat:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [chat]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Chat'
+
+    TableMessageConnected:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [connected]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConnectedUsers'
+
+    TableMessageFunding:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [funding]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Funding'
+
+    TableMessageInstrument:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [instrument]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Instrument'
+
+    TableMessageInsurance:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [insurance]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Insurance'
+
+    TableMessageLiquidation:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [liquidation]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Liquidation'
+
+    TableMessageOrderBookL2:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [orderBookL2, orderBookL2_25]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderBookL2'
+
+    TableMessageOrderBook10:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [orderBook10]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderBook10'
+
+    TableMessageGlobalNotification:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [publicNotifications, privateNotifications]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/GlobalNotification'
+
+    TableMessageQuote:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [quote, quoteBin1m, quoteBin5m, quoteBin1h, quoteBin1d]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Quote'
+
+    TableMessageSettlement:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [settlement]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Settlement'
+
+    TableMessageTrade:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [trade]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Trade'
+
+    TableMessageTradeBin:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [tradeBin1m, tradeBin5m, tradeBin1h, tradeBin1d]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/TradeBin'
+
+    TableMessageAffiliate:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [affiliate]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Affiliate'
+
+    TableMessageExecution:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [execution]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Execution'
+
+    TableMessageMargin:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [margin]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Margin'
+
+    TableMessageOrder:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [order]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Order'
+
+    TableMessagePosition:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [position]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Position'
+
+    TableMessageTransaction:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [transact]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Transaction'
+
+    TableMessageWallet:
+      allOf:
+        - $ref: '#/components/schemas/TableEnvelopeBase'
+        - type: object
+          properties:
+            table:
+              type: string
+              enum: [wallet]
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Wallet'
