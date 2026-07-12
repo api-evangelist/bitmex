@@ -25,10 +25,16 @@ apis:
       - type: AsyncAPI
         url: asyncapi/bitmex-asyncapi.yml
 common:
+  - type: VulnerabilityDisclosure
+    url: security/bitmex-vulnerability-disclosure.yml
+  - type: DomainSecurity
+    url: security/bitmex-domain-security.yml
   - type: Website
     url: https://www.bitmex.com/app/apiOverview
   - type: PublicAPIsListing
     url: https://github.com/public-apis/public-apis
+  - url: https://www.bitmex.com/feed
+    type: Blog
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
