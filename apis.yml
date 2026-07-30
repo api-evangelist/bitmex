@@ -1,4 +1,16 @@
 aid: bitmex
+accessModel:
+  pricing: unknown
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Unknown
+  confidence: low
+  source: []
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/bitmex.png
 name: Bitmex
 description: "Real-Time Cryptocurrency derivatives trading platform based in Hong Kong"
 url: https://www.bitmex.com/app/apiOverview
