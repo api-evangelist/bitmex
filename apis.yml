@@ -14,7 +14,7 @@ image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/bitmex.png
 name: Bitmex
 description: "Real-Time Cryptocurrency derivatives trading platform based in Hong Kong"
 url: https://www.bitmex.com/app/apiOverview
-specificationVersion: '0.20'
+specificationVersion: '0.23'
 created: '2026-05-28'
 modified: '2026-05-29'
 x-source: public-apis/public-apis
