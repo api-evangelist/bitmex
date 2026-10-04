@@ -35,11 +35,11 @@ x-tier-reason: bulk-registered-from-public-apis
 tags:
   - Cryptocurrency
   - Public APIs
+  - Real-Time
 apis:
   - name: Bitmex
     description: "Real-Time Cryptocurrency derivatives trading platform based in Hong Kong"
     humanURL: https://www.bitmex.com/app/apiOverview
-    baseURL: https://www.bitmex.com/app/apiOverview
     tags:
       - Cryptocurrency
     properties:
