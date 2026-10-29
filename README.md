@@ -1,4 +1,4 @@
-# Bitmex (bitmex)
+# Bitmex
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -66,26 +66,126 @@
 
 Real-Time Cryptocurrency derivatives trading platform based in Hong Kong
 
-**APIs.yml:** [apis.yml](apis.yml)
+**Areas:** Cryptocurrency · Public APIs · Real-Time
 
-## Type
-- **x-type:** company
-- **x-tier:** 3 (bulk-registered from public-apis)
-- **source:** [public-apis/public-apis](https://github.com/public-apis/public-apis) — category: Cryptocurrency
+## Bitmex on APIs.io
 
-## API
-- **Bitmex** — [Documentation](https://www.bitmex.com/app/apiOverview)
+Everything profiled for Bitmex is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/bitmex/](https://apis.io/providers/bitmex/)** — or go straight to one of the APIs or properties below.
 
-## Tags
-Cryptocurrency, Public APIs
+### APIs (1)
 
-## Notes
-This entry was bulk-registered as part of a public-apis catalog sweep on 2026-05-28.
-A real OpenAPI artifact will be added during a follow-up enrichment pass if the provider publishes one.
+- [Bitmex](https://apis.io/apis/bitmex/bitmex/) — Real-Time Cryptocurrency derivatives trading platform based in Hong Kong
 
-## Timestamps
-- **Created:** 2026-05-28
-- **Modified:** 2026-05-28
+### Published properties
 
-## Maintainers
-- **Kin Lane** — kin@apievangelist.com
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [BitMEX Realtime WebSocket API](https://apis.io/asyncapis/bitmex/bitmex-asyncapi/)
+
+#### Event channels (30)
+
+Individual events and webhooks the provider emits.
+
+- [affiliate](https://apis.io/channels/bitmex/affiliate/)
+- [announcement](https://apis.io/channels/bitmex/announcement/)
+- [chat](https://apis.io/channels/bitmex/chat/)
+- [connected](https://apis.io/channels/bitmex/connected/)
+- [execution](https://apis.io/channels/bitmex/execution/)
+- [funding](https://apis.io/channels/bitmex/funding/)
+- [instrument](https://apis.io/channels/bitmex/instrument/)
+- [insurance](https://apis.io/channels/bitmex/insurance/)
+- [liquidation](https://apis.io/channels/bitmex/liquidation/)
+- [margin](https://apis.io/channels/bitmex/margin/)
+- [order](https://apis.io/channels/bitmex/order/)
+- [orderBook10](https://apis.io/channels/bitmex/orderbook10/)
+- [orderBookL2](https://apis.io/channels/bitmex/orderbookl2/)
+- [orderBookL2_25](https://apis.io/channels/bitmex/orderbookl2-25/)
+- [position](https://apis.io/channels/bitmex/position/)
+- [privateNotifications](https://apis.io/channels/bitmex/privatenotifications/)
+- [publicNotifications](https://apis.io/channels/bitmex/publicnotifications/)
+- [quote](https://apis.io/channels/bitmex/quote/)
+- [quoteBin1d](https://apis.io/channels/bitmex/quotebin1d/)
+- [quoteBin1h](https://apis.io/channels/bitmex/quotebin1h/)
+- [quoteBin1m](https://apis.io/channels/bitmex/quotebin1m/)
+- [quoteBin5m](https://apis.io/channels/bitmex/quotebin5m/)
+- [settlement](https://apis.io/channels/bitmex/settlement/)
+- [trade](https://apis.io/channels/bitmex/trade/)
+- [tradeBin1d](https://apis.io/channels/bitmex/tradebin1d/)
+- …and 5 more published on APIs.io
+
+#### Governance rules (1)
+
+Spectral rulesets for the provider's contracts.
+
+- [Bitmex — asyncapi rules](https://apis.io/rules/bitmex/bitmex-asyncapi-spectral-rules/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Bitmex Domain Security](https://apis.io/security/bitmex/bitmex-domain-security/)
+- [Bitmex Vulnerability Disclosure](https://apis.io/security/bitmex/bitmex-vulnerability-disclosure/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.bitmex.com/app/apiOverview)
+- [Blog](https://www.bitmex.com/feed)
+
+## API Evangelist rating
+
+**Kin Score 19.1** — emerging · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 46.4 |
+| Contract quality | 43.8 |
+| Contract governance | 13.6 |
+| Operational transparency | 0.0 |
+| Developer ergonomics | 11.9 |
+| Access clarity | 0.0 |
+
+**Agent readiness 14.0** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | — |
+| Idempotency | — |
+| Error Semantics | — |
+| OpenAPI Examples | — |
+| Rate Limit Signal | — |
+| Event Surface Described | derived (partial credit) |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 11.8** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/bitmex/](https://apis.io/providers/bitmex/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Bitmex: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/bitmex/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
