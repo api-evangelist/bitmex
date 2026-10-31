@@ -64,11 +64,15 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
+> **No longer operating.** This company or product has shut down, been discontinued, or been deprecated. This profile is kept as a historical record and is not maintained or rated.
+
+**Status:** event: BitMEX ceased all exchange operations on 23 September 2026. Trading, deposits and new positions are unavailable; API descriptions here are historical.
+
 Real-Time Cryptocurrency derivatives trading platform based in Hong Kong
 
 **Areas:** Cryptocurrency · Public APIs · Real-Time
 
-## Bitmex on APIs.io
+## Bitmex on APIs.io (historical record)
 
 Everything profiled for Bitmex is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/bitmex/](https://apis.io/providers/bitmex/)** — or go straight to one of the APIs or properties below.
 
@@ -139,44 +143,7 @@ Links to the company's own pages. This repository publishes no copy of their spe
 
 ## API Evangelist rating
 
-**Kin Score 19.1** — emerging · rubric 0.24.0 · scored 2026-10-17
-
-| Facet | Score |
-|---|---|
-| Discoverability | 46.4 |
-| Contract quality | 43.8 |
-| Contract governance | 13.6 |
-| Operational transparency | 0.0 |
-| Developer ergonomics | 11.9 |
-| Access clarity | 0.0 |
-
-**Agent readiness 14.0** — agent-aware
-
-| Agent-readiness dimension | Result |
-|---|---|
-| Spec Presence | yes |
-| Agentic Access | — |
-| Reversibility Documented | — |
-| MCP Server | — |
-| Auth Clarity | — |
-| Idempotency | — |
-| Error Semantics | — |
-| OpenAPI Examples | — |
-| Rate Limit Signal | — |
-| Event Surface Described | derived (partial credit) |
-| Agent Skills | — |
-| Well Known Catalog | — |
-| Consent Identity | — |
-| Agent Card | — |
-| Dry Run Mode | — |
-| Delegated Identity | — |
-| Protected Resource Metadata | — |
-| Dynamic Client Registration | — |
-| Agentic Commerce | — |
-
-**Regulatory alignment 11.8** — Horizontal (data, software, accessibility, platform)
-
-The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/bitmex/](https://apis.io/providers/bitmex/).
+**Not rated** — this company is recorded as no longer operating, so no score is published. If it is in fact operating, say so on this repository and it will be re-profiled.
 
 ## How this profile is made
 
